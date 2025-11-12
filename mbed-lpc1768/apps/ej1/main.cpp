@@ -9,8 +9,6 @@ int main()
 {
 	while(1)
 	    {
-		int cont=1;
-
 	        for (int i = 0; i <= 15; i++)
 	        {
 	            led1 = (i >> 0) & 1;

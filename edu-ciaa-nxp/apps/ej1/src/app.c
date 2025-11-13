@@ -1,22 +1,40 @@
-/*
- * main.c
- *
- *  Created on: 13 oct. 2022
- *      Author: fep
- */
+#include "app.h"
+#include "sapi.h"
+#include "string.h"
 
-#include "app.h"         // <= Su propia cabecera (opcional)
-#include "sapi.h"        // <= Biblioteca sAPI
+#define BUFFER_SIZE 100
 
 int main( void )
 {
-        // Inicializar y configurar la placa de desarrollo
-        boardConfig();
+    boardConfig();
 
-        while( TRUE ) {
-                gpioWrite( CIAA_BOARD_LED, 1 );
-                delay(1000);
-                gpioWrite( CIAA_BOARD_LED, 0 );
-                delay(1000);
+    uartConfig( UART_USB, 115200 );
+
+    char buffer[BUFFER_SIZE];
+    uint8_t datoRecibido;
+    int indice = 0;
+
+    while( TRUE ) {
+
+        if( uartReadByte( UART_USB, &datoRecibido ) ) {
+
+            uartWriteByte( UART_USB, datoRecibido );
+
+            if( indice < BUFFER_SIZE - 1 ) {
+                buffer[indice] = datoRecibido;
+                indice++;
+            }
+
+            if( datoRecibido == '\n' || datoRecibido == '\r' ) {
+
+                buffer[indice] = '\0';
+
+                uartWriteString( UART_USB, "\r\n" );
+                uartWriteString( UART_USB, buffer );
+                uartWriteString( UART_USB, "\r\n" );
+
+                indice = 0;
+            }
         }
+    }
 }
